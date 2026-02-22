@@ -56,8 +56,7 @@ class RequestBody(BaseModel):
     regions: List[str]
     threshold_ms: float
 
-@app.post("/api")
-def get_metrics(body: RequestBody):
+def compute(body: RequestBody):
     result = {}
     for region in body.regions:
         rows = [r for r in ALL_RECORDS if r["region"].lower() == region.lower()]
@@ -73,3 +72,11 @@ def get_metrics(body: RequestBody):
             "breaches": int(sum(1 for l in latencies if l > body.threshold_ms)),
         }
     return result
+
+@app.post("/")
+def get_metrics_root(body: RequestBody):
+    return compute(body)
+
+@app.post("/api")
+def get_metrics(body: RequestBody):
+    return compute(body)
